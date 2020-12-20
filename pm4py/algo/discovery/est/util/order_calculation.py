@@ -31,9 +31,33 @@ def absolute_activity_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_
             for event in trace:
                 if event[activity_key] == a:
                     abs_activity_frequency[a] = abs_activity_frequency[a] + 1
-    asc_sorted_activities = list({a: freq for (a, freq) in sorted(
-        abs_activity_frequency.items(), key=lambda item: item[1])}.keys())
-    return ordering_from_asc_sorted_activities(asc_sorted_activities)
+    return ordering_from_asc_sorted_activities(asc_sorted_activities(abs_activity_frequency))
+
+
+def absolute_trace_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+    """
+    The absolute trace frequency is defined as
+        absTF: A -> N, absTF(a) = size({ sigma in L | a in sigma})
+    That is the absolute number of traces where a occurrs.
+    If absTF(a) is high, we expect many tokens to be produced (consumed) for places that have a as an
+    ingoing (outgoing) activity during replay of the log, and thus such places are more likely to be
+    underfed (overfed).
+    """
+    activities = all_activities(log)
+    abs_trace_frequency = {a: 0 for a in activities}
+    for a in activities:
+        for trace in log:
+            contained_activities = set()
+            for event in trace:
+                contained_activities.add(event[activity_key])
+            abs_trace_frequency[a] = abs_trace_frequency[a] + \
+                (1 if a in contained_activities else 0)
+    return ordering_from_asc_sorted_activities(asc_sorted_activities(abs_trace_frequency))
+
+
+def asc_sorted_activities(activity_metric):
+    return list({a: freq for (a, freq) in sorted(
+        activity_metric.items(), key=lambda item: item[1])}.keys())
 
 
 def lexicographic_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
