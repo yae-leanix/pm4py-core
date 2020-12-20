@@ -61,7 +61,24 @@ class EstMinerUtilTest(unittest.TestCase):
                              {activity_key: end_activity})
 
     def test_returnsAbsoluteActivityFrequencyOrdering(self):
-        pass
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+
+        result = order_calculator.absolute_activity_frequency_ordering(log)
+
+        for larger in ['c', 'd']:
+            self.assertTrue(result.is_smaller_than(smaller='a', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='a'))
+            self.assertTrue(result.is_smaller_than(smaller='b', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='b'))
+            self.assertTrue(result.is_smaller_than(smaller='e', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='e'))
+            self.assertTrue(result.is_smaller_than(smaller='f', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='f'))
 
     def test_returnsAbsoluteTraceFrequencyOrdering(self):
         pass
