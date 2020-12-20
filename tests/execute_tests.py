@@ -41,7 +41,7 @@ if __name__ == "__main__":
     from tests.imp_exp_from_string import ImpExpFromString
     from tests.woflan_tests import WoflanTest
     from tests.simplified_interface import SimplifiedInterfaceTest
-    from tests.est_tests import EstMinerTest
+    from tests.est_tests import EstMinerTest, EstMinerUtilTest
 
     test_ts = TransitionSystemTest()
     test_ies = ImpExpFromString()
@@ -78,5 +78,6 @@ if __name__ == "__main__":
     diagn_dataframe_test = DiagnDfConfChecking()
     simplified_test = SimplifiedInterfaceTest()
     est_test = EstMinerTest()
+    est_util_test = EstMinerUtilTest()
 
     unittest.main()

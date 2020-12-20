@@ -4,9 +4,11 @@ import unittest
 import pandas as pd
 
 from pm4py.algo.discovery.est import algorithm as est_miner
+from pm4py.algo.discovery.est.util import log_transformation as log_transformer
 from pm4py.objects.conversion.log import converter as log_conversion
 from pm4py.objects.log.util import dataframe_utils
 from pm4py.objects.log.importer.xes import importer as xes_importer
+from pm4py.util import xes_constants as xes_util
 from tests.constants import INPUT_DATA_DIR
 
 
@@ -39,6 +41,23 @@ class EstMinerTest(unittest.TestCase):
         self.assertIsNotNone(net)
         self.assertIsNotNone(marking)
         self.assertIsNotNone(fmarking)
+
+
+class EstMinerUtilTest(unittest.TestCase):
+    def test_addsUniqueStartAndEndActivityToLog(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+        start_activity = "[start>"
+        end_activity = "[end]"
+        activity_key = xes_util.DEFAULT_NAME_KEY
+
+        result = log_transformer.add_unique_start_and_end_activity(
+            log, start_activity=start_activity, end_activity=end_activity, activity_key=activity_key)
+
+        for trace in result:
+            self.assertEqual(trace[0], {activity_key: start_activity})
+            self.assertEqual(trace[len(trace) - 1],
+                             {activity_key: end_activity})
 
 
 if __name__ == "__main__":
