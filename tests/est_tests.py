@@ -5,6 +5,7 @@ import pandas as pd
 
 from pm4py.algo.discovery.est import algorithm as est_miner
 from pm4py.algo.discovery.est.util import log_transformation as log_transformer
+from pm4py.algo.discovery.est.util import order_calculation as order_calculator
 from pm4py.objects.conversion.log import converter as log_conversion
 from pm4py.objects.log.util import dataframe_utils
 from pm4py.objects.log.importer.xes import importer as xes_importer
@@ -58,6 +59,49 @@ class EstMinerUtilTest(unittest.TestCase):
             self.assertEqual(trace[0], {activity_key: start_activity})
             self.assertEqual(trace[len(trace) - 1],
                              {activity_key: end_activity})
+
+    def test_returnsAbsoluteActivityFrequencyOrdering(self):
+        pass
+
+    def test_returnsAbsoluteTraceFrequencyOrdering(self):
+        pass
+
+    def test_returnsAbsoluteTraceOccurrenceOrdering(self):
+        pass
+
+    def test_returnsAverageFirstOccurrenceIndexOrdering(self):
+        pass
+
+    def test_returnsLexicographicOrdering(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+
+        result = order_calculator.lexicographic_ordering(log)
+
+        for larger in ['b', 'c', 'd', 'e', 'f']:
+            self.assertTrue(result.is_smaller_than(
+                smaller='a', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='a'))
+        for larger in ['c', 'd', 'e', 'f']:
+            self.assertTrue(result.is_smaller_than(smaller='b', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='b'))
+        for larger in ['d', 'e', 'f']:
+            self.assertTrue(result.is_smaller_than(smaller='c', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='c'))
+        for larger in ['e', 'f']:
+            self.assertTrue(result.is_smaller_than(smaller='d', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='d'))
+        for larger in ['f']:
+            self.assertTrue(result.is_smaller_than(smaller='e', larger=larger))
+            self.assertFalse(result.is_smaller_than(
+                smaller=larger, larger='e'))
+        for activity in ['a', 'b', 'c', 'd', 'e', 'f']:
+            self.assertFalse(result.is_smaller_than(
+                smaller=activity, larger=activity))
 
 
 if __name__ == "__main__":
