@@ -64,7 +64,7 @@ class EstMinerUtilTest(unittest.TestCase):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
 
-        result = order_calculator.absolute_activity_frequency_ordering(log)
+        result = order_calculator.absolute_activity_frequency_asc_ordering(log)
 
         for larger in ['c', 'd']:
             self.assertTrue(result.is_smaller_than(smaller='a', larger=larger))
@@ -93,7 +93,7 @@ class EstMinerUtilTest(unittest.TestCase):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
 
-        result = order_calculator.lexicographic_ordering(log)
+        result = order_calculator.lexicographic_asc_ordering(log)
 
         for larger in ['b', 'c', 'd', 'e', 'f']:
             self.assertTrue(result.is_smaller_than(

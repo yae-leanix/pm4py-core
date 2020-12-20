@@ -15,7 +15,7 @@ class Order:
         return larger in self._smaller_than[smaller] if is_comparable else False
 
 
-def absolute_activity_frequency_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def absolute_activity_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     """
     The absolute activity frequency is defined as
         absAF: A -> N, absAF(a) = sum_{sigma in L} size({i in {1, ..., len(sigma)} | sigma(i) = a })
@@ -36,7 +36,7 @@ def absolute_activity_frequency_ordering(log, activity_key=xes_util.DEFAULT_NAME
     return ordering_from_asc_sorted_activities(asc_sorted_activities)
 
 
-def lexicographic_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def lexicographic_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     asc_sorted_activities = sorted(all_activities(log))
     return ordering_from_asc_sorted_activities(asc_sorted_activities)
 
