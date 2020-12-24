@@ -62,43 +62,47 @@ class EstMinerUtilTest(unittest.TestCase):
 
     def test_returnsAbsoluteActivityFrequencyOrdering(self):
         log = xes_importer.apply(os.path.join(
-            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+            INPUT_DATA_DIR, "running-example.xes"))
+        # absAF(register request) = 6
+        # absAF(examine casually) = 6
+        # absAF(check ticket) = 9
+        # absAF(decide) = 9
+        # absAF(reinitiate request) = 3
+        # absAF(examine thoroughly) = 3
+        # absAF(pay compensation) = 3
+        # absAF(reject request) = 3
 
         result = order_calculator.absolute_activity_frequency_ordering_asc(log)
 
-        for larger in ['c', 'd']:
-            self.assertTrue(result.is_smaller_than(smaller='a', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='a'))
-            self.assertTrue(result.is_smaller_than(smaller='b', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='b'))
-            self.assertTrue(result.is_smaller_than(smaller='e', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='e'))
-            self.assertTrue(result.is_smaller_than(smaller='f', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='f'))
+        self.assertSmallerAndLarger(result, smallerActivities=['reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'], largerActivities=[
+                                    'register request', 'examine casually', 'check ticket', 'decide'])
+        self.assertSmallerAndLarger(result,
+                                    smallerActivities=['register request', 'examine casually'], largerActivities=['check ticket', 'decide'])
+        for equallyRated in [['register request', 'examine casually'], ['check ticket', 'decide'], ['reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request']]:
+            self.assertEquallyRated(result, equallyRated)
 
     def test_returnsAbsoluteTraceFrequencyOrdering(self):
         log = xes_importer.apply(os.path.join(
-            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+            INPUT_DATA_DIR, "running-example.xes"))
+        # absTF(register request) = 6
+        # absTF(examine casually) = 4
+        # absTF(check ticket) = 6
+        # absTF(decide) = 6
+        # absTF(reinitiate request) = 2
+        # absTF(examine thoroughly) = 3
+        # absTF(pay compensation) = 3
+        # absTF(reject request) = 3
 
-        result = order_calculator.absolute_activity_frequency_ordering_asc(log)
+        result = order_calculator.absolute_trace_frequency_ordering_asc(log)
 
-        for larger in ['c', 'd']:
-            self.assertTrue(result.is_smaller_than(smaller='a', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='a'))
-            self.assertTrue(result.is_smaller_than(smaller='b', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='b'))
-            self.assertTrue(result.is_smaller_than(smaller='e', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='e'))
-            self.assertTrue(result.is_smaller_than(smaller='f', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='f'))
+        self.assertSmallerAndLarger(result, smallerActivities=['reinitiate request'], largerActivities=[
+                                    'register request', 'examine casually', 'check ticket', 'decide', 'examine thoroughly', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=['examine thoroughly', 'pay compensation', 'reject request'], largerActivities=[
+                                    'register request', 'check ticket', 'decide', 'examine casually'])
+        self.assertSmallerAndLarger(result, smallerActivities=['examine casually'], largerActivities=[
+                                    'register request', 'check ticket', 'decide'])
+        for equallyRated in [['register request', 'check ticket', 'decide'], ['examine casually'], ['examine thoroughly', 'pay compensation', 'reject request'], ['reinitiate request']]:
+            self.assertEquallyRated(result, equallyRated)
 
     def test_returnsAbsoluteTraceOccurrenceOrdering(self):
         pass
@@ -136,6 +140,26 @@ class EstMinerUtilTest(unittest.TestCase):
         for activity in ['a', 'b', 'c', 'd', 'e', 'f']:
             self.assertFalse(result.is_smaller_than(
                 smaller=activity, larger=activity))
+
+    def assertSmallerAndLarger(self, result, smallerActivities=[], largerActivities=[]):
+        for larger in largerActivities:
+            for smaller in smallerActivities:
+                self.assertTrue(result.is_smaller_than(
+                    smaller=smaller, larger=larger))
+                self.assertFalse(result.is_smaller_than(
+                    smaller=larger, larger=smaller))
+
+    def assertEquallyRated(self, result, equallyRated):
+        for a in equallyRated:
+            for b in equallyRated:
+                if (a != b):
+                    self.assertTrue((result.is_smaller_than(
+                        smaller=a, larger=b) or result.is_smaller_than(smaller=b, larger=a)))
+                    self.assertFalse(result.is_smaller_than(
+                        smaller=a, larger=b) and result.is_smaller_than(smaller=b, larger=a))
+                else:
+                    self.assertFalse(result.is_smaller_than(
+                        smaller=a, larger=b) or result.is_smaller_than(smaller=b, larger=a))
 
 
 if __name__ == "__main__":
