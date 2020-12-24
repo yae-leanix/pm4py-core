@@ -15,7 +15,7 @@ class Order:
         return larger in self._smaller_than[smaller] if is_comparable else False
 
 
-def absolute_activity_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def absolute_activity_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     """
     The absolute activity frequency is defined as
         absAF: A -> N, absAF(a) = sum_{sigma in L} size({i in {1, ..., len(sigma)} | sigma(i) = a })
@@ -31,10 +31,10 @@ def absolute_activity_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_
             for event in trace:
                 if event[activity_key] == a:
                     abs_activity_frequency[a] = abs_activity_frequency[a] + 1
-    return ordering_from_asc_sorted_activities(asc_sorted_activities(abs_activity_frequency))
+    return ordering_from_asc_sorted_activities(sorted_activities_asc(abs_activity_frequency))
 
 
-def absolute_trace_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def absolute_trace_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     """
     The absolute trace frequency is defined as
         absTF: A -> N, absTF(a) = size({ sigma in L | a in sigma})
@@ -52,15 +52,15 @@ def absolute_trace_frequency_asc_ordering(log, activity_key=xes_util.DEFAULT_NAM
                 contained_activities.add(event[activity_key])
             abs_trace_frequency[a] = abs_trace_frequency[a] + \
                 (1 if a in contained_activities else 0)
-    return ordering_from_asc_sorted_activities(asc_sorted_activities(abs_trace_frequency))
+    return ordering_from_asc_sorted_activities(sorted_activities_asc(abs_trace_frequency))
 
 
-def asc_sorted_activities(activity_metric):
+def sorted_activities_asc(activity_metric):
     return list({a: freq for (a, freq) in sorted(
         activity_metric.items(), key=lambda item: item[1])}.keys())
 
 
-def lexicographic_asc_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def lexicographic_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     asc_sorted_activities = sorted(all_activities(log))
     return ordering_from_asc_sorted_activities(asc_sorted_activities)
 
