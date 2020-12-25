@@ -104,11 +104,35 @@ class EstMinerUtilTest(unittest.TestCase):
         for equallyRated in [['register request', 'check ticket', 'decide'], ['examine casually'], ['examine thoroughly', 'pay compensation', 'reject request'], ['reinitiate request']]:
             self.assertEquallyRated(result, equallyRated)
 
-    def test_returnsAbsoluteTraceOccurrenceOrdering(self):
-        pass
-
     def test_returnsAverageFirstOccurrenceIndexOrdering(self):
-        pass
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+        # avgFOI(register request) = 1
+        # avgFOI(examine casually) = 2.25
+        # absFOI(check ticket) = 2.67
+        # absFOI(decide) = 4
+        # absFOI(reinitiate request) = 5
+        # absFOI(examine thoroughly) = 3.67
+        # absFOI(pay compensation) = 6.33
+        # absFOI(reject request) = 7.67
+
+        result = order_calculator.average_first_occurrence_index_ordering_asc(
+            log)
+
+        self.assertSmallerAndLarger(result, smallerActivities=['register request'], largerActivities=[
+                                    'examine casually', 'check ticket', 'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=['examine casually'], largerActivities=[
+                                    'check ticket', 'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=['check ticket'], largerActivities=[
+                                    'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=['decide'], largerActivities=[
+                                    'reinitiate request', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=['reinitiate request'], largerActivities=[
+                                    'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'examine thoroughly'], largerActivities=['decide', 'reinitiate request', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(
+            result, smallerActivities=['pay compensation'], largerActivities=['reject request'])
 
     def test_returnsLexicographicOrdering(self):
         log = xes_importer.apply(os.path.join(

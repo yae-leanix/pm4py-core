@@ -43,6 +43,12 @@ def absolute_trace_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAM
     ingoing (outgoing) activity during replay of the log, and thus such places are more likely to be
     underfed (overfed).
     """
+    abs_trace_frequency = absolute_trace_frequency(
+        log, activity_key=activity_key)
+    return ordering_from_asc_sorted_activities(sorted_activities_asc(abs_trace_frequency))
+
+
+def absolute_trace_frequency(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     activities = all_activities(log)
     abs_trace_frequency = {a: 0 for a in activities}
     for a in activities:
@@ -52,7 +58,31 @@ def absolute_trace_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAM
                 contained_activities.add(event[activity_key])
             abs_trace_frequency[a] = abs_trace_frequency[a] + \
                 (1 if a in contained_activities else 0)
-    return ordering_from_asc_sorted_activities(sorted_activities_asc(abs_trace_frequency))
+    return abs_trace_frequency
+
+
+def average_first_occurrence_index_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+    """
+    The average first occurrence index is defined as:
+        avgFOI: A -> Q, avgFOI(a) = sum_{sigam in L} min({i in {1, 2, ..., len(sigma)} | sigma[i] = a}) / absTF(a)
+    That is the first index in a trace where a is present, averaged over the number of traces where a occurrs.
+    If avgFOI(a) is low, we can expect the activity a to generate or consume a token early on
+    during replay of the trace. Places which have outgoing activities with low average first occurrence index
+    are more likely to be underfed, as their output activities may require tokens early on during replay, where
+    none might be available.
+    """
+    activities = all_activities(log)
+    abs_trace_frequency = absolute_trace_frequency(
+        log, activity_key=activity_key)
+    avg_first_occurrence_index = {a: 0 for a in activities}
+    for a in activities:
+        for trace in log:
+            for index, event in enumerate(trace, start=1):
+                if event[activity_key] == a:
+                    avg_first_occurrence_index[a] = avg_first_occurrence_index[a] + \
+                        index / abs_trace_frequency[a]
+                    break
+    return ordering_from_asc_sorted_activities(sorted_activities_asc(avg_first_occurrence_index))
 
 
 def sorted_activities_asc(activity_metric):
