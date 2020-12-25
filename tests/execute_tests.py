@@ -4,7 +4,8 @@ import sys
 import unittest
 
 if __name__ == "__main__":
-    current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    current_dir = os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())))
     parent_dir = os.path.dirname(current_dir)
     sys.path.insert(0, parent_dir)
     from tests.doc_tests import DocTests
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     from tests.imp_exp_from_string import ImpExpFromString
     from tests.woflan_tests import WoflanTest
     from tests.simplified_interface import SimplifiedInterfaceTest
-    from tests.est_tests import EstMinerTest, EstMinerUtilTest
+    from tests.est_tests import EstMinerTest, EstMinerUtilTest, EstMinerOrderingTest
 
     test_ts = TransitionSystemTest()
     test_ies = ImpExpFromString()
@@ -79,5 +80,6 @@ if __name__ == "__main__":
     simplified_test = SimplifiedInterfaceTest()
     est_test = EstMinerTest()
     est_util_test = EstMinerUtilTest()
+    est_ordering_test = EstMinerOrderingTest()
 
     unittest.main()

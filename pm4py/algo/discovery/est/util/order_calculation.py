@@ -1,4 +1,11 @@
+from enum import Enum
+
 from pm4py.util import xes_constants as xes_util
+
+
+class OrderType(Enum):
+    ASC = 'ascending'
+    DESC = 'descending'
 
 
 class Order:
@@ -15,7 +22,7 @@ class Order:
         return larger in self._smaller_than[smaller] if is_comparable else False
 
 
-def absolute_activity_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def absolute_activity_frequency_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY, order_type=OrderType.ASC):
     """
     The absolute activity frequency is defined as
         absAF: A -> N, absAF(a) = sum_{sigma in L} size({i in {1, ..., len(sigma)} | sigma(i) = a })
@@ -31,10 +38,10 @@ def absolute_activity_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_
             for event in trace:
                 if event[activity_key] == a:
                     abs_activity_frequency[a] = abs_activity_frequency[a] + 1
-    return ordering_from_asc_sorted_activities(sorted_activities_asc(abs_activity_frequency))
+    return ordering_from_sorted_activities(sorted_activities(abs_activity_frequency, order_type=order_type))
 
 
-def absolute_trace_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def absolute_trace_frequency_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY, order_type=OrderType.ASC):
     """
     The absolute trace frequency is defined as
         absTF: A -> N, absTF(a) = size({ sigma in L | a in sigma})
@@ -45,7 +52,7 @@ def absolute_trace_frequency_ordering_asc(log, activity_key=xes_util.DEFAULT_NAM
     """
     abs_trace_frequency = absolute_trace_frequency(
         log, activity_key=activity_key)
-    return ordering_from_asc_sorted_activities(sorted_activities_asc(abs_trace_frequency))
+    return ordering_from_sorted_activities(sorted_activities(abs_trace_frequency, order_type=order_type))
 
 
 def absolute_trace_frequency(log, activity_key=xes_util.DEFAULT_NAME_KEY):
@@ -61,7 +68,7 @@ def absolute_trace_frequency(log, activity_key=xes_util.DEFAULT_NAME_KEY):
     return abs_trace_frequency
 
 
-def average_first_occurrence_index_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+def average_first_occurrence_index_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY, order_type=OrderType.ASC):
     """
     The average first occurrence index is defined as:
         avgFOI: A -> Q, avgFOI(a) = sum_{sigam in L} min({i in {1, 2, ..., len(sigma)} | sigma[i] = a}) / absTF(a)
@@ -82,20 +89,21 @@ def average_first_occurrence_index_ordering_asc(log, activity_key=xes_util.DEFAU
                     avg_first_occurrence_index[a] = avg_first_occurrence_index[a] + \
                         index / abs_trace_frequency[a]
                     break
-    return ordering_from_asc_sorted_activities(sorted_activities_asc(avg_first_occurrence_index))
+    return ordering_from_sorted_activities(sorted_activities(avg_first_occurrence_index, order_type=order_type))
 
 
-def sorted_activities_asc(activity_metric):
+def sorted_activities(activity_metric, order_type=OrderType.ASC):
+    reverse = order_type == OrderType.DESC
     return list({a: freq for (a, freq) in sorted(
-        activity_metric.items(), key=lambda item: item[1])}.keys())
+        activity_metric.items(), key=lambda item: item[1], reverse=reverse)}.keys())
 
 
-def lexicographic_ordering_asc(log, activity_key=xes_util.DEFAULT_NAME_KEY):
-    asc_sorted_activities = sorted(all_activities(log))
-    return ordering_from_asc_sorted_activities(asc_sorted_activities)
+def lexicographic_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY, order_type=OrderType.ASC):
+    reverse = order_type == order_type.DESC
+    return ordering_from_sorted_activities(sorted(all_activities(log), reverse=reverse))
 
 
-def ordering_from_asc_sorted_activities(sorted_activities):
+def ordering_from_sorted_activities(sorted_activities):
     order = Order(sorted_activities)
     for i in range(0, len(sorted_activities)):
         for j in range(i, len(sorted_activities)):

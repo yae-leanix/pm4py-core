@@ -60,7 +60,9 @@ class EstMinerUtilTest(unittest.TestCase):
             self.assertEqual(trace[len(trace) - 1],
                              {activity_key: end_activity})
 
-    def test_returnsAbsoluteActivityFrequencyOrdering(self):
+
+class EstMinerOrderingTest(unittest.TestCase):
+    def test_returnsAscendingAbsoluteActivityFrequencyOrdering(self):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "running-example.xes"))
         # absAF(register request) = 6
@@ -72,7 +74,8 @@ class EstMinerUtilTest(unittest.TestCase):
         # absAF(pay compensation) = 3
         # absAF(reject request) = 3
 
-        result = order_calculator.absolute_activity_frequency_ordering_asc(log)
+        result = order_calculator.absolute_activity_frequency_ordering(
+            log, order_type=order_calculator.OrderType.ASC)
 
         self.assertSmallerAndLarger(result, smallerActivities=['reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'], largerActivities=[
                                     'register request', 'examine casually', 'check ticket', 'decide'])
@@ -81,7 +84,21 @@ class EstMinerUtilTest(unittest.TestCase):
         for equallyRated in [['register request', 'examine casually'], ['check ticket', 'decide'], ['reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request']]:
             self.assertEquallyRated(result, equallyRated)
 
-    def test_returnsAbsoluteTraceFrequencyOrdering(self):
+    def test_returnsDescendingAbsoluteActivityFrequencyOrdering(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+
+        result = order_calculator.absolute_activity_frequency_ordering(
+            log, order_type=order_calculator.OrderType.DESC)
+
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'register request', 'examine casually', 'check ticket', 'decide'], largerActivities=['reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'check ticket', 'decide'], largerActivities=['register request', 'examine casually'])
+        for equallyRated in [['register request', 'examine casually'], ['check ticket', 'decide'], ['reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request']]:
+            self.assertEquallyRated(result, equallyRated)
+
+    def test_returnsAscendingAbsoluteTraceFrequencyOrdering(self):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "running-example.xes"))
         # absTF(register request) = 6
@@ -93,7 +110,8 @@ class EstMinerUtilTest(unittest.TestCase):
         # absTF(pay compensation) = 3
         # absTF(reject request) = 3
 
-        result = order_calculator.absolute_trace_frequency_ordering_asc(log)
+        result = order_calculator.absolute_trace_frequency_ordering(
+            log, order_type=order_calculator.OrderType.ASC)
 
         self.assertSmallerAndLarger(result, smallerActivities=['reinitiate request'], largerActivities=[
                                     'register request', 'examine casually', 'check ticket', 'decide', 'examine thoroughly', 'pay compensation', 'reject request'])
@@ -104,7 +122,23 @@ class EstMinerUtilTest(unittest.TestCase):
         for equallyRated in [['register request', 'check ticket', 'decide'], ['examine casually'], ['examine thoroughly', 'pay compensation', 'reject request'], ['reinitiate request']]:
             self.assertEquallyRated(result, equallyRated)
 
-    def test_returnsAverageFirstOccurrenceIndexOrdering(self):
+    def test_returnsDescendingAbsoluteTraceFrequencyOrdering(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+
+        result = order_calculator.absolute_trace_frequency_ordering(
+            log, order_type=order_calculator.OrderType.DESC)
+
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'register request', 'examine casually', 'check ticket', 'decide', 'examine thoroughly', 'pay compensation', 'reject request'], largerActivities=['reinitiate request'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'register request', 'check ticket', 'decide', 'examine casually'], largerActivities=['examine thoroughly', 'pay compensation', 'reject request'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'register request', 'check ticket', 'decide'], largerActivities=['examine casually'])
+        for equallyRated in [['register request', 'check ticket', 'decide'], ['examine casually'], ['examine thoroughly', 'pay compensation', 'reject request'], ['reinitiate request']]:
+            self.assertEquallyRated(result, equallyRated)
+
+    def test_returnsAscendingAverageFirstOccurrenceIndexOrdering(self):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "running-example.xes"))
         # avgFOI(register request) = 1
@@ -116,8 +150,8 @@ class EstMinerUtilTest(unittest.TestCase):
         # absFOI(pay compensation) = 6.33
         # absFOI(reject request) = 7.67
 
-        result = order_calculator.average_first_occurrence_index_ordering_asc(
-            log)
+        result = order_calculator.average_first_occurrence_index_ordering(
+            log, order_type=order_calculator.OrderType.ASC)
 
         self.assertSmallerAndLarger(result, smallerActivities=['register request'], largerActivities=[
                                     'examine casually', 'check ticket', 'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'])
@@ -134,11 +168,34 @@ class EstMinerUtilTest(unittest.TestCase):
         self.assertSmallerAndLarger(
             result, smallerActivities=['pay compensation'], largerActivities=['reject request'])
 
-    def test_returnsLexicographicOrdering(self):
+    def test_returnsDescendingAverageFirstOccurrenceIndexOrdering(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+
+        result = order_calculator.average_first_occurrence_index_ordering(
+            log, order_type=order_calculator.OrderType.DESC)
+
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'examine casually', 'check ticket', 'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'], largerActivities=['register request'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'check ticket', 'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'], largerActivities=['examine casually'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'decide', 'reinitiate request', 'examine thoroughly', 'pay compensation', 'reject request'], largerActivities=['check ticket'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'reinitiate request', 'pay compensation', 'reject request'], largerActivities=['decide'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'pay compensation', 'reject request'], largerActivities=['reinitiate request'])
+        self.assertSmallerAndLarger(result, smallerActivities=['decide', 'reinitiate request', 'pay compensation', 'reject request'], largerActivities=[
+                                    'examine thoroughly'])
+        self.assertSmallerAndLarger(
+            result, smallerActivities=['reject request'], largerActivities=['pay compensation'])
+
+    def test_returnsAscendingLexicographicOrdering(self):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
 
-        result = order_calculator.lexicographic_ordering_asc(log)
+        result = order_calculator.lexicographic_ordering(
+            log, order_type=order_calculator.OrderType.ASC)
 
         self.assertSmallerAndLarger(result, smallerActivities=[
                                     'a'], largerActivities=['b', 'c', 'd', 'e', 'f'])
