@@ -140,27 +140,16 @@ class EstMinerUtilTest(unittest.TestCase):
 
         result = order_calculator.lexicographic_ordering_asc(log)
 
-        for larger in ['b', 'c', 'd', 'e', 'f']:
-            self.assertTrue(result.is_smaller_than(
-                smaller='a', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='a'))
-        for larger in ['c', 'd', 'e', 'f']:
-            self.assertTrue(result.is_smaller_than(smaller='b', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='b'))
-        for larger in ['d', 'e', 'f']:
-            self.assertTrue(result.is_smaller_than(smaller='c', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='c'))
-        for larger in ['e', 'f']:
-            self.assertTrue(result.is_smaller_than(smaller='d', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='d'))
-        for larger in ['f']:
-            self.assertTrue(result.is_smaller_than(smaller='e', larger=larger))
-            self.assertFalse(result.is_smaller_than(
-                smaller=larger, larger='e'))
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'a'], largerActivities=['b', 'c', 'd', 'e', 'f'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'b'], largerActivities=['c', 'd', 'e', 'f'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'c'], largerActivities=['d', 'e', 'f'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'd'], largerActivities=['e', 'f'])
+        self.assertSmallerAndLarger(result, smallerActivities=[
+                                    'e'], largerActivities=['f'])
         for activity in ['a', 'b', 'c', 'd', 'e', 'f']:
             self.assertFalse(result.is_smaller_than(
                 smaller=activity, larger=activity))
