@@ -6,6 +6,8 @@ import pandas as pd
 from pm4py.algo.discovery.est import algorithm as est_miner
 from pm4py.algo.discovery.est.util import log_transformation as log_transformer
 from pm4py.algo.discovery.est.util import order_calculation as order_calculator
+from pm4py.algo.discovery.est.util import place_fitness as place_fitness_calculator
+from pm4py.algo.discovery.est.util.place_fitness import Place, Fitness
 from pm4py.objects.conversion.log import converter as log_conversion
 from pm4py.objects.log.util import dataframe_utils
 from pm4py.objects.log.importer.xes import importer as xes_importer
@@ -260,6 +262,53 @@ class EstMinerOrderingTest(unittest.TestCase):
                 else:
                     self.assertFalse(result.is_smaller_than(
                         smaller=a, larger=b) or result.is_smaller_than(smaller=b, larger=a))
+
+
+class EstMinerPlaceFitnessTest(unittest.TestCase):
+    def test_recognizesFittingPlace(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+        place = Place(input_activities=['a', 'b'], output_activities=['c'])
+
+        result = place_fitness_calculator.place_fitness_state(place, log)
+
+        self.assertTrue(Fitness.FITTING in result.fitness_properties)
+        self.assertFalse(Fitness.UNDERFED in result.fitness_properties)
+        self.assertFalse(Fitness.OVERFED in result.fitness_properties)
+
+    def test_recognizesOverfedPlace(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+        place = Place(input_activities=['a', 'c'], output_activities=['d'])
+
+        result = place_fitness_calculator.place_fitness_state(place, log)
+
+        self.assertTrue(Fitness.OVERFED in result.fitness_properties)
+        self.assertFalse(Fitness.UNDERFED in result.fitness_properties)
+        self.assertFalse(Fitness.FITTING in result.fitness_properties)
+
+    def test_recognizesUnderfedPlace(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+        place = Place(input_activities=['d'], output_activities=['c'])
+
+        result = place_fitness_calculator.place_fitness_state(place, log)
+
+        self.assertTrue(Fitness.UNDERFED in result.fitness_properties)
+        self.assertFalse(Fitness.OVERFED in result.fitness_properties)
+        self.assertFalse(Fitness.FITTING in result.fitness_properties)
+
+    def test_recognizesOverfedAndUnderfedPlace(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
+        place = Place(input_activities=[
+                      'e', 'f', 'd'], output_activities=['a'])
+
+        result = place_fitness_calculator.place_fitness_state(place, log)
+
+        self.assertTrue(Fitness.OVERFED in result.fitness_properties)
+        self.assertTrue(Fitness.UNDERFED in result.fitness_properties)
+        self.assertFalse(Fitness.FITTING in result.fitness_properties)
 
 
 if __name__ == "__main__":

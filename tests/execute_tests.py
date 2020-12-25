@@ -42,7 +42,7 @@ if __name__ == "__main__":
     from tests.imp_exp_from_string import ImpExpFromString
     from tests.woflan_tests import WoflanTest
     from tests.simplified_interface import SimplifiedInterfaceTest
-    from tests.est_tests import EstMinerTest, EstMinerUtilTest, EstMinerOrderingTest
+    from tests.est_tests import EstMinerTest, EstMinerUtilTest, EstMinerOrderingTest, EstMinerPlaceFitnessTest
 
     test_ts = TransitionSystemTest()
     test_ies = ImpExpFromString()
@@ -81,5 +81,6 @@ if __name__ == "__main__":
     est_test = EstMinerTest()
     est_util_test = EstMinerUtilTest()
     est_ordering_test = EstMinerOrderingTest()
+    est_fitness_test = EstMinerPlaceFitnessTest()
 
     unittest.main()
