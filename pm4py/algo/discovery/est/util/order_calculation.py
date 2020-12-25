@@ -22,6 +22,59 @@ class Order:
         return larger in self._smaller_than[smaller] if is_comparable else False
 
 
+class SearchSpaceOrdering:
+
+    def __init__(self, input_ordering, output_ordering):
+        self.input_ordering = input_ordering
+        self.output_ordering = output_ordering
+
+
+def search_space_ordering_based_on_absolute_activity_frequency(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+    """
+    If absAF(a) is high, we expect many tokens to be produced (consumed) for places that
+    have a as an ingoing (outgoing) activity during replay of log, and thus such places
+    are more likely to be underfed (overfed).
+    This means we want that both intput and output ordering should sort the activities descending
+    based on their absAF, because this would mean that we visit places that are more
+    likely to get pruned early on in our search.
+    """
+    input_ordering = output_ordering = absolute_activity_frequency_ordering(
+        log, activity_key=activity_key, order_type=OrderType.DESC)
+    return SearchSpaceOrdering(input_ordering, output_ordering)
+
+
+def search_space_ordering_based_on_absolute_trace_frequency(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+    """
+    If absTF(a) is high, we expect many tokens to be produced (consumed) for places that
+    have a as an ingoing (outgoing) activity during replay of log, and thus such places
+    are more likely to be underfed (overfed).
+    This means we want that both intput and output ordering should sort the activities descending
+    based on their absTF, because this would mean that we visit places that are more
+    likely to get pruned early on in our search.
+    """
+    input_ordering = output_ordering = absolute_trace_frequency_ordering(
+        log, activity_key=activity_key, order_type=OrderType.DESC)
+    return SearchSpaceOrdering(input_ordering, output_ordering)
+
+
+def search_space_ordering_based_on_average_first_occurrence_index(log, activity_key=xes_util.DEFAULT_NAME_KEY):
+    """
+    If avgFOI(a) is low, we can expect the activity a to generate or consume tokens early
+    on during the replay of a trace. Places which have outgoing activities
+    with low average first occurrence index are more likely to be underfed, as their output
+    activities may require tokens early on during replay, where none might be available.
+    This means we want the input ordering to sort the activities descending based on their avgFOI, while
+    the output ordering should sort the activities ascending based on their avgFOI.
+    This way we visit places early on, that have outgoing activities that require tokens early on during
+    replay, while the outgoing activities only produce tokens late during replay.
+    """
+    input_ordering = average_first_occurrence_index_ordering(
+        log, activity_key=activity_key, order_type=OrderType.DESC)
+    output_ordering = average_first_occurrence_index_ordering(
+        log, activity_key=activity_key, order_type=OrderType.ASC)
+    return SearchSpaceOrdering(input_ordering, output_ordering)
+
+
 def absolute_activity_frequency_ordering(log, activity_key=xes_util.DEFAULT_NAME_KEY, order_type=OrderType.ASC):
     """
     The absolute activity frequency is defined as

@@ -62,6 +62,36 @@ class EstMinerUtilTest(unittest.TestCase):
 
 
 class EstMinerOrderingTest(unittest.TestCase):
+    def test_returnsSameInputAndOutputOrderingForAbsoluteActivityFrequencyMetric(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+
+        result = order_calculator.search_space_ordering_based_on_absolute_activity_frequency(
+            log)
+
+        self.assertEqual(result.input_ordering._smaller_than,
+                         result.output_ordering._smaller_than)
+
+    def test_returnsSameInputAndOutputOrderingForAbsoluteTraceFrequencyMetric(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+
+        result = order_calculator.search_space_ordering_based_on_absolute_trace_frequency(
+            log)
+
+        self.assertEqual(result.input_ordering._smaller_than,
+                         result.output_ordering._smaller_than)
+
+    def test_returnsDifferentInputAndOutputOrderingForAverageFirstOccurrenceIndexMetric(self):
+        log = xes_importer.apply(os.path.join(
+            INPUT_DATA_DIR, "running-example.xes"))
+
+        result = order_calculator.search_space_ordering_based_on_average_first_occurrence_index(
+            log)
+
+        self.assertNotEqual(result.input_ordering._smaller_than,
+                            result.output_ordering._smaller_than)
+
     def test_returnsAscendingAbsoluteActivityFrequencyOrdering(self):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "running-example.xes"))
