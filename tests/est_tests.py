@@ -269,8 +269,9 @@ class EstMinerPlaceFitnessTest(unittest.TestCase):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
         place = Place(input_activities=['a', 'b'], output_activities=['c'])
+        tau = 1.0
 
-        result = place_fitness_calculator.place_fitness_state(place, log)
+        result = place_fitness_calculator.place_fitness_state(place, log, tau)
 
         self.assertTrue(Fitness.FITTING in result.fitness_properties)
         self.assertFalse(Fitness.UNDERFED in result.fitness_properties)
@@ -280,8 +281,9 @@ class EstMinerPlaceFitnessTest(unittest.TestCase):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
         place = Place(input_activities=['a', 'c'], output_activities=['d'])
+        tau = 1.0
 
-        result = place_fitness_calculator.place_fitness_state(place, log)
+        result = place_fitness_calculator.place_fitness_state(place, log, tau)
 
         self.assertTrue(Fitness.OVERFED in result.fitness_properties)
         self.assertFalse(Fitness.UNDERFED in result.fitness_properties)
@@ -291,8 +293,9 @@ class EstMinerPlaceFitnessTest(unittest.TestCase):
         log = xes_importer.apply(os.path.join(
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
         place = Place(input_activities=['d'], output_activities=['c'])
+        tau = 1.0
 
-        result = place_fitness_calculator.place_fitness_state(place, log)
+        result = place_fitness_calculator.place_fitness_state(place, log, tau)
 
         self.assertTrue(Fitness.UNDERFED in result.fitness_properties)
         self.assertFalse(Fitness.OVERFED in result.fitness_properties)
@@ -303,8 +306,9 @@ class EstMinerPlaceFitnessTest(unittest.TestCase):
             INPUT_DATA_DIR, "long_term_dependencies_xor.xes"))
         place = Place(input_activities=[
                       'e', 'f', 'd'], output_activities=['a'])
+        tau = 1.0
 
-        result = place_fitness_calculator.place_fitness_state(place, log)
+        result = place_fitness_calculator.place_fitness_state(place, log, tau)
 
         self.assertTrue(Fitness.OVERFED in result.fitness_properties)
         self.assertTrue(Fitness.UNDERFED in result.fitness_properties)
